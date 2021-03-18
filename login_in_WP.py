@@ -1,4 +1,4 @@
-#by iluvatar - login with onetime password
+# By iluvatar - login with onetime password
 import time
 import requests
 

@@ -1,6 +1,6 @@
 import requests
 
-# Get the watchlist
+#  Get the watchlist
 def get_watchlist():
     params_watchlist = {
         "action": "query",
