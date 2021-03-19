@@ -28,15 +28,35 @@ R = S.get(url=URL, params=token_params)
 DATA = R.json()
 LOGIN_TOKEN = DATA['query']['tokens']['logintoken']
 
-# Post request to log in
+# Post request to log in WP
 login_params = {
     "action": "login",
     "lgname": "Сэр Джордж Тейлор",
+    # fake password
     "lgpassword": "Gazprom09",
     "format": "json",
     "lgtoken": LOGIN_TOKEN
 }
+
 R = S.post(URL, data=login_params)
 
+# Connection test
+#print(get_watchlist())
+
+usercontribs_params = {
+    "action": "query",
+    "format": "json",
+    "list": "usercontribs",
+    "ucuser": "Saramag"
+}
+
+# Take 10 last contribs
+R = S.get(url=URL, params=usercontribs_params)
+DATA = R.json()
+
+USERCONTRIBS = DATA["query"]["usercontribs"]
+
+for uc in USERCONTRIBS:
+    print(uc["title"])
 
 
