@@ -3,19 +3,6 @@ import requests
 S = requests.Session()
 URL = "https://ru.wikipedia.org/w/api.php"
 
-# Get the watchlist of current user
-def get_watchlist():
-    params_watchlist = {
-        "action": "query",
-        "list": "watchlist",
-        "format": "json"
-    }
-
-    R = S.get(url=URL, params=params_watchlist)
-    watchlist = R.json()
-    #print(watchlist)
-    return watchlist
-
 # Retrieve a login token
 def get_token():
     token_params = {
@@ -42,39 +29,58 @@ def get_token():
     R = S.post(URL, data=login_params)
     return login_token
 
-LOGIN_TOKEN = get_token()
+#LOGIN_TOKEN = get_token()
 # Connection test b8938b033bccf445417bbcfb41d1c0b460573d32+\
 #print(get_watchlist())
 #print(LOGIN_TOKEN)
 
-usercontribs_params = {
-    "action": "query",
-    "format": "json",
-    # Set username to watch
-    "ucuser": "Saramag",
-    # Take users contribs
-    "list": "usercontribs",
-    # All list
-    "uclimit": "max",
-    # From time
-    "ucend": "2021-03-21T09:47:17Z"
+# Get the watchlist of current user
+def get_watchlist():
+    params_watchlist = {
+        "action": "query",
+        "list": "watchlist",
+        "format": "json"
+    }
 
-}
+    R = S.get(url=URL, params=params_watchlist)
+    watchlist = R.json()
+    #print(watchlist)
+    return watchlist
 
-# Take 10 last contribs
-R = S.get(url=URL, params=usercontribs_params)
-DATA = R.json()
-#test for get-data
-#print(DATA)
-USERCONTRIBS = DATA["query"]["usercontribs"]
+# Get contribs of %username%
+def get_user_contribs(username):
+    ucuser = username
+    usercontribs_params = {
+     "action": "query",
+        "format": "json",
+        # Set username to watch
+        "ucuser": ucuser,
+        # Take users contribs
+        "list": "usercontribs",
+        # All list = max
+        "uclimit": "max",
+        # From time
+        "ucend": "2021-03-21T09:47:17Z"
+        }
 
-#if USERCONTRIBS[0]:
-#    if USERCONTRIBS[0] == "":
-#        print("No contribs for this data")
+    # Take last contribs
+    R = S.get(url=URL, params=usercontribs_params)
+    DATA = R.json()
+    #test for get-data
+    #print(usercontribs_params)
+    USERCONTRIBS = DATA["query"]["usercontribs"]
 
-for uc in USERCONTRIBS:
-    # Print only pagenames
-    #print(uc["title"])
-    print(uc)
+    #if USERCONTRIBS[0]:
+    #if USERCONTRIBS[0] == "":
+    #print("No contribs for this data")
+
+    for uc in USERCONTRIBS:
+        # Print only pagenames
+        #print(uc["title"])
+        print(uc)
+
+#get_user_contribs("Saramag")
+
+
 
 
