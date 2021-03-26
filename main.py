@@ -1,6 +1,7 @@
 import requests
 #import json
-import re
+#import re
+from datetime import datetime
 
 S = requests.Session()
 URL = "https://ru.wikipedia.org/w/api.php"
@@ -14,8 +15,8 @@ def get_token():
     "format": "json"
     }
 
-    R = S.get(url=URL, params=token_params)
-    data = R.json()
+    r = S.get(url=URL, params=token_params)
+    data = r.json()
     login_token = data['query']['tokens']['logintoken']
 
     # Post request to log in WP
@@ -28,7 +29,7 @@ def get_token():
         "lgtoken":  login_token
     }
 
-    R = S.post(URL, data=login_params)
+    r = S.post(URL, data=login_params)
     return login_token
 
 #LOGIN_TOKEN = get_token()
@@ -44,43 +45,56 @@ def get_watchlist():
         "format": "json"
     }
 
-    R = S.get(url=URL, params=params_watchlist)
-    watchlist = R.json()
+    r = S.get(url=URL, params=params_watchlist)
+    watchlist = r.json()
     #print(watchlist)
     return watchlist
 
-# Get contribs of %username%
-def get_user_contribs(username, ucend):
-    ucuser = username
+# Check list
+def search(list, check_word):
+    for i in range(len(list)):
+        if list[i] == check_word:
+            return True
+    return False
+
+def put_data_in_page():
+    return 0
+
+def put_alarm(username):
+    print(username + ' started to contibs!!!')
+
+def remove_user_from_watch(username, watchtime):
+    print(username + ' must be deleted from list')
+
+# Check contribs of %username%
+def check_user_contribs(username, ucend):
+    s = requests.Session()
     ucendr = ucend
     usercontribs_params = {
         "action": "query",
         "format": "json",
         # Set username to watch
-        "ucuser": ucuser,
+        "ucuser": username,
         # Take users contribs
         "list": "usercontribs",
-        # All list = max
-        "uclimit": "max",
+        # Take last contrib. All list = max
+        "uclimit": "1",
         # From time
         "ucend": ucendr
     }
 
-    # Take last contribs
-    R = S.get(url=URL, params=usercontribs_params)
-    DATA = R.json()
-    #test for get-data
-    #print(usercontribs_params)
-    USERCONTRIBS = DATA["query"]["usercontribs"]
+    # Take JSON
+    r = s.get(url=URL, params=usercontribs_params)
+    data = r.json()
 
-    #if USERCONTRIBS[0]:
-    #if USERCONTRIBS[0] == "":
-    #print("No contribs for this data")
-
-    for uc in USERCONTRIBS:
-        # Print only pagenames
-        #print(uc["title"])
-        print(uc)
+    # Check length of answer
+    usercontribs = data["query"]["usercontribs"]
+    if usercontribs:
+        #print('1 {1} ', len(usercontribs))
+        return 1
+    else:
+        #print('1 {0} ', len(usercontribs))
+        return 0
 
 #get_user_contribs("Saramag","2021-03-21T09:47:17Z")
 
@@ -99,30 +113,42 @@ usercontribs_params = {
 
 r = S.get(url=URL, params=usercontribs_params)
 data = r.json()
+
 #test for get-data
 #error in coder
 #parsed_string = json.dumps(data)
+
 # Parse json to str
 parsed_string = data["query"]["pages"][0]["revisions"][0]["slots"]["main"]["content"]
-#
-#print(data)
+parsed_string = parsed_string.replace(" ", "")
+
+# Convert to list
+parsed_string_to_list = parsed_string.split("\n\n")
+
 # Remove legenda
-parsed_string = parsed_string.split("):",1)[1]
+parsed_string_to_list.remove("Логин-IPнапроверку,Датапостановки,Датаснятияпроверки(,еслинетдатыокончания):")
+
 # Remove spaces before
-parsed_string = parsed_string.strip()
-mylist = re.split("'.+'gm", parsed_string)
-print(mylist)
-print(parsed_string)
-dict_with_data = {
-  "user": "test",
-  "date_start": "2021-03-21T00:00:00Z",
-  "date_stop": "2022-03-21T00:00:00Z"
-}
-print(dict_with_data)
-#for i in parsed_string:
-#    print(i)
-data_aray = [[ ['a' for col in range(3)] for col in range(3)] for row in range(4)]
-print(data_aray)
+
+#parsed_string_to_list = parsed_string_to_list.strip()
+#parsed_string_to_list = re.split("'.+'gm", parsed_string_to_list)
+#print(parsed_string_to_list)
+
+for i in parsed_string_to_list:
+    i_to_list = i.split(",")
+    #test print
+    #print(i_to_list[0], i_to_list[1], i_to_list[2])
+    if i_to_list[2] == '':
+        i_to_list[2] = '3021-03-21T00:00:00Z'
+    if check_user_contribs(i_to_list[0], i_to_list[1]) == 1:
+        put_alarm(i_to_list[0])
+    if datetime.strptime(i_to_list[2].replace('Z','').replace('T',' '), '%Y-%m-%d %H:%M:%S') < datetime.today():
+        remove_user_from_watch(i_to_list[0], i_to_list[2])
+
+
+# Initiation of array
+#data_aray = [['a' for col in range(3)] for col in range(8)]
+#print(data_aray)
 #\n\nSaramag,
 #content = data["query"]["pages"]
 #content2 = content["revisions"]["slots"]
