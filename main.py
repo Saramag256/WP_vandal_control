@@ -1,8 +1,10 @@
 import requests
+#import Pywikibot
 #import json
 #import re
 from datetime import datetime
 
+# Run global connect
 S = requests.Session()
 URL = "https://ru.wikipedia.org/w/api.php"
 
@@ -23,13 +25,13 @@ def get_token():
     login_params = {
         "action": "login",
         "lgname": "Сэр Джордж Тейлор",
-        # fake password to tests
+        # F      ake password to tests
         "lgpassword": "Gazprom09",
         "format": "json",
         "lgtoken":  login_token
     }
-
     r = S.post(URL, data=login_params)
+
     return login_token
 
 #LOGIN_TOKEN = get_token()
@@ -66,7 +68,7 @@ def put_alarm(username):
 def remove_user_from_watch(username, watchtime):
     print(username + ' must be deleted from list')
 
-# Check contribs of %username%
+# Check contrib of %username%
 def check_user_contribs(username, ucend):
     s = requests.Session()
     ucendr = ucend
@@ -98,7 +100,7 @@ def check_user_contribs(username, ucend):
 
 #get_user_contribs("Saramag","2021-03-21T09:47:17Z")
 
-# Get settings to search
+# Settings of searching
 # https://en.wikipedia.org/w/api.php?action=query&format=json&prop=revisions&titles=Pet_door&formatversion=2&rvprop=content&rvslots=*
 
 usercontribs_params = {
@@ -120,15 +122,15 @@ data = r.json()
 
 # Parse json to str
 parsed_string = data["query"]["pages"][0]["revisions"][0]["slots"]["main"]["content"]
+
+# Remove all spaces
 parsed_string = parsed_string.replace(" ", "")
 
 # Convert to list
 parsed_string_to_list = parsed_string.split("\n\n")
 
-# Remove legenda
+# Remove legend
 parsed_string_to_list.remove("Логин-IPнапроверку,Датапостановки,Датаснятияпроверки(,еслинетдатыокончания):")
-
-# Remove spaces before
 
 #parsed_string_to_list = parsed_string_to_list.strip()
 #parsed_string_to_list = re.split("'.+'gm", parsed_string_to_list)
