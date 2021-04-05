@@ -1,5 +1,5 @@
 import requests
-#import Pywikibot
+import pywikibot
 #import json
 #import re
 from datetime import datetime
