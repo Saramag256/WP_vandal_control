@@ -9,6 +9,58 @@ from collections import Counter
 S = requests.Session()
 URL = "https://ru.wikipedia.org/w/api.php"
 
+def ucfirst(string):
+    """Return string with first letter in upper case."""
+    if len(string) < 2:
+        return string.upper()
+    else:
+        return string[:1].upper() + string[1:]
+
+def unificate_link(link):
+    """Remove "user:" prefix, deal with trailing spaces and underscores."""
+    (pagename, prefix) = re.subn(r"^ *(?:[Уу]|[Уу]частник|[Уу]частница|[Uu]|[Uu]ser) *:", "", link)
+    if not prefix:
+        return None
+    return ucfirst(re.sub(" ", "_", pagename).strip("_"))
+
+def process_page(page):
+    """Analyze all importScript functions and return a list of used scripts."""
+
+    title = r"^[^/]+/(common|vector|cologneblue|minerva|modern|monobook|timeless)\.js$"
+    comments = r"//.+|/\*(?:.|\n)*?\*/"
+    scripts = r"importScript *\( *([\"'])([^\"'\n]*?)\1(?: *, *[\"']ru[\"'])? *\)"
+
+    if not re.match(title, page.title()):
+        return []
+
+    text = page.text
+    text = re.sub(comments, "", text)
+
+    result = []
+    for quote, link in re.findall(scripts, text):
+        link = unificate_link(link)
+        if link:
+            result.append(link)
+
+    return result
+
+def put_new_list(user, date):
+    """Main script function."""
+    site = pywikibot.Site()
+    result = "{| class=\"wikitable sortable\"\n"
+    result += "|+\n"
+    result += "!Логин\IP !Дата старта наблюдения! Новые правки\n"
+    formatstr = "|-\n| [[Участник:{user}]] || {date} || [https://ru.wikipedia.org/w/index.php?target={user}&namespace=all&tagfilter=&start={date}&end=&limit=500&title=Служебная%3AВклад]\n"
+    result += formatstr.format(user=user, date=date)
+    result += "|}\n\n"
+    page = pywikibot.Page(site, "Участник:Сэр Джордж Тейлор/Raport")
+    page.text = result
+    page.save("Ежедневная актуализация.", minor=False)
+
+def put_alarm(username,date):
+    print(username + ' started to contibs!!!')
+    put_new_list(username, date)
+
 # Retrieve a login token
 def get_token():
     token_params = {
@@ -62,9 +114,6 @@ def search(list, check_word):
 
 def put_data_in_page():
     return 0
-
-def put_alarm(username):
-    print(username + ' started to contibs!!!')
 
 def remove_user_from_watch(username, watchtime):
     print(username + ' must be deleted from list')
@@ -144,74 +193,12 @@ for i in parsed_string_to_list:
     if i_to_list[2] == '':
         i_to_list[2] = '3021-03-21T00:00:00Z'
     if check_user_contribs(i_to_list[0], i_to_list[1]) == 1:
-        put_alarm(i_to_list[0])
+        put_alarm(i_to_list[0], i_to_list[2])
     if datetime.strptime(i_to_list[2].replace('Z','').replace('T',' '), '%Y-%m-%d %H:%M:%S') < datetime.today():
         remove_user_from_watch(i_to_list[0], i_to_list[2])
 
-#toDO
-
-def ucfirst(string):
-    """Return string with first letter in upper case."""
-    if len(string) < 2:
-        return string.upper()
-    else:
-        return string[:1].upper() + string[1:]
-
-def unificate_link(link):
-    """Remove "user:" prefix, deal with trailing spaces and underscores."""
-    (pagename, prefix) = re.subn(r"^ *(?:[Уу]|[Уу]частник|[Уу]частница|[Uu]|[Uu]ser) *:", "", link)
-    if not prefix:
-        return None
-    return ucfirst(re.sub(" ", "_", pagename).strip("_"))
-
-def process_page(page):
-    """Analyze all importScript functions and return a list of used scripts."""
-
-    title = r"^[^/]+/(common|vector|cologneblue|minerva|modern|monobook|timeless)\.js$"
-    comments = r"//.+|/\*(?:.|\n)*?\*/"
-    scripts = r"importScript *\( *([\"'])([^\"'\n]*?)\1(?: *, *[\"']ru[\"'])? *\)"
-
-    if not re.match(title, page.title()):
-        return []
-
-    text = page.text
-    text = re.sub(comments, "", text)
-
-    result = []
-    for quote, link in re.findall(scripts, text):
-        link = unificate_link(link)
-        if link:
-            result.append(link)
-
-    return result
-
-def get_stats(site):
-    """Get an { script : count } dictionary."""
-    result = []
-    for page in site.search("insource:\"importScript\"", [2], content=True):
-        result += process_page(page)
-    return dict(Counter(result))
-
-def main():
-    """Main script function."""
-    site = pywikibot.Site()
-    stats = get_stats(site)
-
-    result = "Последнее обновление: {{subst:#time:j xg Y, H:i}}\n\n"
-    result += "{| class=\"wikitable sortable\"\n"
-    result += "! Место !! Скрипт !! Использований\n"
-    formatstr = "|-\n| {num} || [[Участник:{page}]] || [https://ru.wikipedia.org/w/index.php?search=insource%3A%22{page}%22&ns2=1 {count}]\n"
-    for num, page in enumerate(sorted(sorted(stats), key=stats.get, reverse=True)):
-        count = stats[page]
-        result += formatstr.format(num=num + 1, page=page, count=count)
-    result += "|}\n\n"
-
-    page = pywikibot.Page(site, "Участник:NapalmBot/Самые используемые скрипты")
-    page.text = result
-    page.save("Обновление данных.", minor=False)
-
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
 
 # Initiation of array
 #data_aray = [['a' for col in range(3)] for col in range(8)]
