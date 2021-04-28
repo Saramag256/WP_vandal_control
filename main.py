@@ -4,6 +4,10 @@ import pywikibot
 #import re
 from datetime import datetime
 from collections import Counter
+#import os
+
+#get_script_dir()
+#print(os.getcwd())
 
 # Run global connect
 S = requests.Session()
