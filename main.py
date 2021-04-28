@@ -3,7 +3,7 @@ import pywikibot
 #import json
 #import re
 from datetime import datetime
-from collections import Counter
+#from collections import Counter
 #import os
 
 #get_script_dir()
@@ -57,11 +57,11 @@ def put_new_list(user, date):
     formatstr = "|-\n| [[Участник:{user}]] || {date} || [https://ru.wikipedia.org/w/index.php?target={user}&namespace=all&tagfilter=&start={date}&end=&limit=500&title=Служебная%3AВклад]\n"
     result += formatstr.format(user=user, date=date)
     result += "|}\n\n"
-    page = pywikibot.Page(site, "Участник:Сэр Джордж Тейлор/Raport")
+    page = pywikibot(site, "Участник:Сэр Джордж Тейлор/Raport")
     page.text = result
     page.save("Ежедневная актуализация.", minor=False)
 
-def put_alarm(username,date):
+def put_alarm(username, date):
     print(username + ' started to contibs!!!')
     put_new_list(username, date)
 
