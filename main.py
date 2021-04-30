@@ -49,15 +49,16 @@ def process_page(page):
     return result
 
 def put_new_list(user, date):
-    """Main script function."""
+
     site = pywikibot.Site()
+    print(site)
     result = "{| class=\"wikitable sortable\"\n"
     result += "|+\n"
     result += "!Логин\IP !Дата старта наблюдения! Новые правки\n"
     formatstr = "|-\n| [[Участник:{user}]] || {date} || [https://ru.wikipedia.org/w/index.php?target={user}&namespace=all&tagfilter=&start={date}&end=&limit=500&title=Служебная%3AВклад]\n"
     result += formatstr.format(user=user, date=date)
     result += "|}\n\n"
-    page = pywikibot(site, "Участник:Сэр Джордж Тейлор/Raport")
+    page = pywikibot('wikipedia:ru', 'user:Saramag')
     page.text = result
     page.save("Ежедневная актуализация.", minor=False)
 
