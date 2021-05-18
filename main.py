@@ -205,18 +205,6 @@ for i in parsed_string_to_list:
 #if __name__ == "__main__":
 #    main()
 
-# Initiation of array
-#data_aray = [['a' for col in range(3)] for col in range(8)]
-#print(data_aray)
-#\n\nSaramag,
-#content = data["query"]["pages"]
-#content2 = content["revisions"]["slots"]
-#print(content)
-
-#if USERCONTRIBS[0]:
-#if USERCONTRIBS[0] == "":
-#print("No contribs for this data")
-
 
 
 
