@@ -1,5 +1,5 @@
 import pandas as pd
-users_data=pd.read_csv('/datasets/users_data.csv')
+users_data=pd.read_csv('C:/Users/Katumka/PycharmProjects/WP_vandal_control/apicache-py3/users_data.csv')
 
 users_data['session_start_ts'] = pd.to_datetime(users_data['session_start_ts'], format="%Y-%m-%d %H:%M")
 users_data['session_end_ts'] = pd.to_datetime(users_data['session_end_ts'], format="%Y-%m-%d %H:%M")
