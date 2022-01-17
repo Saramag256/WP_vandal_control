@@ -32,5 +32,5 @@ predictions = model.predict(X_test_st)
 features = pd.DataFrame({'feature':X.columns, 'coeff':model.coef_})# воспользуйтесь методом coef_
 features['coeff_abs'] = abs(features['coeff'])# напишите свой код здесь
 
-# выведите упорядоченный по модулю коэффициентов датафрейм с признаками
+# выведите упорядоченный по модулю коэффициентов фрейм с признаками
 print(features.sort_values('coeff_abs', ascending=False))
